@@ -7,9 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	aiengine "muehle/internal/ai"
-	"muehle/internal/game"
-	"muehle/internal/model"
+	aiengine "github.com/pmoscode/Nine-Men-s-Morris/internal/ai"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/game"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/model"
 )
 
 const (
@@ -59,11 +59,11 @@ func difficultySettings(d string) (depth int, easy bool) {
 func difficultyLabel(d string) string {
 	switch d {
 	case "easy":
-		return "Leicht"
+		return "Easy"
 	case "hard":
-		return "Schwer"
+		return "Hard"
 	default:
-		return "Mittel"
+		return "Medium"
 	}
 }
 

@@ -7,9 +7,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"muehle/internal/handler"
-	"muehle/internal/hub"
-	"muehle/internal/repository"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/handler"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/hub"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/repository"
 )
 
 //go:embed templates/* static/*
@@ -64,7 +64,7 @@ func main() {
 	r.GET("/ws/:roomID/spectate", wsHandler.HandleSpectator)
 	r.GET("/ai/ws", aiWSHandler.Handle)
 
-	log.Println("Mühle server listening on :8080")
+	log.Println("Nine Men's Morris server listening on :8080")
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal(err)
 	}

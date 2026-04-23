@@ -1,4 +1,4 @@
-module muehle
+module github.com/pmoscode/Nine-Men-s-Morris
 
 go 1.23
 

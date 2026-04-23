@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"muehle/internal/hub"
-	"muehle/internal/model"
-	"muehle/internal/repository"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/hub"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/model"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/repository"
 )
 
 type LobbyHandler struct {
@@ -24,22 +24,22 @@ func (h *LobbyHandler) Register(c *gin.Context) {
 		Name string `json:"name" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Name erforderlich"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Name required"})
 		return
 	}
 
 	name := strings.TrimSpace(body.Name)
 	if name == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Name darf nicht leer sein"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Name must not be empty"})
 		return
 	}
 	if len(name) > 30 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Name zu lang (max. 30 Zeichen)"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Name too long (max. 30 characters)"})
 		return
 	}
 
 	if err := h.repo.Upsert(name); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Datenbankfehler"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
 
@@ -50,7 +50,7 @@ func (h *LobbyHandler) Register(c *gin.Context) {
 func (h *LobbyHandler) CreateRoom(c *gin.Context) {
 	name, err := c.Cookie("player_name")
 	if err != nil || name == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Kein Spielername"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No player name"})
 		return
 	}
 
@@ -75,14 +75,14 @@ func (h *LobbyHandler) ListRooms(c *gin.Context) {
 func (h *LobbyHandler) JoinRoom(c *gin.Context) {
 	name, err := c.Cookie("player_name")
 	if err != nil || name == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Kein Spielername"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No player name"})
 		return
 	}
 
 	roomID := c.Param("roomID")
 	token, ok := h.hub.JoinRoom(roomID, name)
 	if !ok {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Raum nicht gefunden oder bereits voll"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Room not found or already full"})
 		return
 	}
 

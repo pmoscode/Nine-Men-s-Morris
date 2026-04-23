@@ -17,8 +17,12 @@ vars:
       esac
 
 tasks:
+  upgrade:
+    desc: Update Go modules
+    cmd: go get -u ./...
+
   tw:install:
-    desc: TailwindCSS Standalone-Binary herunterladen
+    desc: Download TailwindCSS standalone binary
     cmds:
       - mkdir -p bin
       - curl -sLo bin/tailwindcss https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-{{.TW_OS}}-{{.TW_ARCH}}
@@ -27,40 +31,40 @@ tasks:
       - test -f bin/tailwindcss
 
   tw:build:
-    desc: CSS einmalig generieren (minifiziert)
+    desc: Generate CSS once (minified)
     deps: [tw:install]
     cmds:
       - ./bin/tailwindcss -i static/css/input.css -o static/css/app.css --minify
 
   tw:watch:
-    desc: CSS im Watch-Modus generieren (Entwicklung)
+    desc: Generate CSS in watch mode (development)
     deps: [tw:install]
     cmds:
       - ./bin/tailwindcss -i static/css/input.css -o static/css/app.css --watch
 
   build:
-    desc: Go-Binary bauen
+    desc: Build Go binary
     deps: [tw:build]
     cmds:
       - go build -o bin/muehle ./...
 
   run:
-    desc: Anwendung lokal starten
+    desc: Start application locally
     deps: [tw:build]
     cmds:
       - go run ./...
 
   test:
-    desc: Tests ausführen
+    desc: Run tests
     cmds:
       - go test ./...
 
   tidy:
-    desc: go mod tidy ausführen
+    desc: Run go mod tidy
     cmds:
       - go mod tidy
 
   lint:
-    desc: Linter ausführen (benötigt golangci-lint)
+    desc: Run linter (requires golangci-lint)
     cmds:
       - golangci-lint run

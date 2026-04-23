@@ -129,22 +129,22 @@ func ValidMoves(gs *GameState, player int8) [][2]int {
 // Returns an error string if the move is illegal, empty string on success.
 func ApplyPlace(gs *GameState, pos int, player int8) string {
 	if gs.Phase != PhasePlace {
-		return "Nicht in der Setzphase"
+		return "Not in placement phase"
 	}
 	if gs.Turn != player {
-		return "Nicht dein Zug"
+		return "Not your turn"
 	}
 	if gs.MustRemove {
-		return "Du musst zuerst einen Stein entfernen"
+		return "You must remove a stone first"
 	}
 	if pos < 0 || pos > 23 {
-		return "Ungültige Position"
+		return "Invalid position"
 	}
 	if gs.Board[pos] != 0 {
-		return "Position bereits belegt"
+		return "Position already occupied"
 	}
 	if gs.ToPlace[player-1] == 0 {
-		return "Keine Steine mehr zum Setzen"
+		return "No more stones to place"
 	}
 
 	gs.Board[pos] = player
@@ -163,22 +163,22 @@ func ApplyPlace(gs *GameState, pos int, player int8) string {
 // ApplyMove moves player's stone from→to, updates phase/turn/mustRemove.
 func ApplyMove(gs *GameState, from, to int, player int8) string {
 	if gs.Phase != PhaseMove {
-		return "Nicht in der Zugphase"
+		return "Not in move phase"
 	}
 	if gs.Turn != player {
-		return "Nicht dein Zug"
+		return "Not your turn"
 	}
 	if gs.MustRemove {
-		return "Du musst zuerst einen Stein entfernen"
+		return "You must remove a stone first"
 	}
 	if from < 0 || from > 23 || to < 0 || to > 23 {
-		return "Ungültige Position"
+		return "Invalid position"
 	}
 	if gs.Board[from] != player {
-		return "Kein eigener Stein auf dieser Position"
+		return "No own stone at this position"
 	}
 	if gs.Board[to] != 0 {
-		return "Zielposition ist belegt"
+		return "Target position is occupied"
 	}
 
 	flying := gs.OnBoard(player) == 3
@@ -191,7 +191,7 @@ func ApplyMove(gs *GameState, from, to int, player int8) string {
 			}
 		}
 		if !adjacent {
-			return "Feld nicht benachbart"
+			return "Field not adjacent"
 		}
 	}
 
@@ -210,13 +210,13 @@ func ApplyMove(gs *GameState, from, to int, player int8) string {
 // ApplyRemove removes the opponent's stone at pos.
 func ApplyRemove(gs *GameState, pos int, player int8) string {
 	if !gs.MustRemove {
-		return "Kein Stein zu entfernen"
+		return "No stone to remove"
 	}
 	if gs.Turn != player {
-		return "Nicht dein Zug"
+		return "Not your turn"
 	}
 	if !CanRemove(gs.Board, pos, player) {
-		return "Stein kann nicht entfernt werden"
+		return "Stone cannot be removed"
 	}
 
 	opponent := int8(3) - player

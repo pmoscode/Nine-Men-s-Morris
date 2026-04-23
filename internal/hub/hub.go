@@ -7,9 +7,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
-	"muehle/internal/game"
-	"muehle/internal/model"
-	"muehle/internal/repository"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/game"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/model"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/repository"
 )
 
 const reconnectGrace = 60 * time.Second

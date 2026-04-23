@@ -1,4 +1,4 @@
-{{define "title"}}Mühle – Willkommen{{end}}
+{{define "title"}}Mühle – Welcome{{end}}
 {{define "content"}}
 <div class="min-h-[calc(100vh-7rem)] flex items-center justify-center px-4">
   <div class="w-full max-w-md">
@@ -7,13 +7,13 @@
     <div class="text-center mb-10">
       <div class="text-7xl mb-4" style="filter:drop-shadow(0 0 24px rgba(232,160,69,0.4));">⬡</div>
       <h1 class="text-4xl font-bold mb-2" style="color:#fffffe;">Mühle</h1>
-      <p class="text-sm" style="color:#a7a9be;">Das klassische Strategiespiel – jetzt online</p>
+      <p class="text-sm" style="color:#a7a9be;">The classic strategy game – now online</p>
     </div>
 
     <!-- Name form -->
     <div class="glass p-8" x-data="registerForm()">
-      <h2 class="text-lg font-semibold mb-1" style="color:#fffffe;">Wie heißt du?</h2>
-      <p class="text-sm mb-6" style="color:#a7a9be;">Dein Name wird für die Highscore-Liste verwendet.</p>
+      <h2 class="text-lg font-semibold mb-1" style="color:#fffffe;">What's your name?</h2>
+      <p class="text-sm mb-6" style="color:#a7a9be;">Your name will be used for the highscore list.</p>
 
       <form @submit.prevent="submit">
         <div class="mb-4">
@@ -21,7 +21,7 @@
             x-model="name"
             type="text"
             class="input-field"
-            placeholder="Dein Spielername …"
+            placeholder="Your player name …"
             maxlength="30"
             autofocus
             required
@@ -29,13 +29,13 @@
           <p x-show="error" x-text="error" class="mt-2 text-sm" style="color:#f87171;" x-cloak></p>
         </div>
         <button type="submit" class="btn-primary w-full" :disabled="loading">
-          <span x-show="!loading">Losspielen →</span>
-          <span x-show="loading" x-cloak>Einen Moment …</span>
+          <span x-show="!loading">Play →</span>
+          <span x-show="loading" x-cloak>Just a moment …</span>
         </button>
       </form>
 
       <p class="mt-6 text-xs text-center" style="color:#6b7280;">
-        Kein Passwort nötig. Dein Name wird als Cookie gespeichert.
+        No password needed. Your name is stored as a cookie.
       </p>
     </div>
 
@@ -60,10 +60,10 @@ function registerForm() {
           body: JSON.stringify({name: this.name.trim()}),
         });
         const data = await res.json();
-        if (!res.ok) { this.error = data.error || 'Fehler'; return; }
+        if (!res.ok) { this.error = data.error || 'Error'; return; }
         window.location.href = next;
       } catch {
-        this.error = 'Verbindungsfehler';
+        this.error = 'Connection error';
       } finally {
         this.loading = false;
       }
