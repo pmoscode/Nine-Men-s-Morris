@@ -1,0 +1,13 @@
+services:
+  muehle:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - muehle-data:/app/data
+    environment:
+      - DB_PATH=/app/data/muehle.db
+    restart: unless-stopped
+
+volumes:
+  muehle-data:

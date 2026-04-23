@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pmoscode/Nine-Men-s-Morris/internal/handler"
@@ -15,8 +16,15 @@ import (
 //go:embed templates/* static/*
 var embeddedFiles embed.FS
 
+func dbPath() string {
+	if p := os.Getenv("DB_PATH"); p != "" {
+		return p
+	}
+	return "muehle.db"
+}
+
 func main() {
-	repo, err := repository.NewPlayerRepository("muehle.db")
+	repo, err := repository.NewPlayerRepository(dbPath())
 	if err != nil {
 		log.Fatalf("db init: %v", err)
 	}
