@@ -1,0 +1,193 @@
+{{define "title"}}Mühle – Lobby{{end}}
+{{define "content"}}
+<div class="max-w-2xl mx-auto px-4 py-12">
+
+  <div class="mb-10 text-center">
+    <h1 class="text-3xl font-bold mb-2" style="color:#fffffe;">Willkommen, <span style="color:#e8a045;">{{.PlayerName}}</span></h1>
+    <p style="color:#a7a9be;">Erstelle ein Spiel oder tritt einem bestehenden Raum bei.</p>
+  </div>
+
+  <div class="grid gap-6 md:grid-cols-2" x-data="lobby()">
+
+    <!-- Create Room -->
+    <div class="glass p-6">
+      <h2 class="text-lg font-semibold mb-1" style="color:#fffffe;">Neues Spiel</h2>
+      <p class="text-sm mb-5" style="color:#a7a9be;">Erstelle einen Raum und teile den Link mit deinem Gegner.</p>
+
+      <label class="flex items-center gap-2 mb-4 text-sm cursor-pointer select-none" style="color:#a7a9be;">
+        <input type="checkbox" x-model="allowSpectators" class="w-4 h-4 accent-amber-400">
+        Zuschauer erlauben
+      </label>
+
+      <button @click="createRoom" class="btn-primary w-full" :disabled="loading">
+        Spiel erstellen
+      </button>
+
+      <!-- Share link -->
+      <div x-show="shareLink" x-cloak class="mt-4">
+        <p class="text-xs mb-2" style="color:#a7a9be;">Link für deinen Gegner:</p>
+        <div class="flex gap-2">
+          <input
+            :value="shareLink"
+            class="input-field text-sm"
+            readonly
+            @click="$el.select()"
+          >
+          <button @click="copyLink" class="btn-secondary px-3 text-sm whitespace-nowrap">
+            <span x-text="copied ? '✓' : 'Kopieren'"></span>
+          </button>
+        </div>
+        <button @click="enterRoom" class="btn-primary w-full mt-3">
+          Raum betreten →
+        </button>
+      </div>
+    </div>
+
+    <!-- Join Room -->
+    <div class="glass p-6">
+      <h2 class="text-lg font-semibold mb-1" style="color:#fffffe;">Raum beitreten</h2>
+      <p class="text-sm mb-5" style="color:#a7a9be;">Gib die Raum-ID deines Gegners ein.</p>
+      <form @submit.prevent="joinRoom">
+        <input
+          x-model="joinID"
+          type="text"
+          class="input-field mb-3"
+          placeholder="Raum-ID …"
+          maxlength="8"
+        >
+        <p x-show="joinError" x-text="joinError" class="mb-3 text-sm" style="color:#f87171;" x-cloak></p>
+        <button type="submit" class="btn-secondary w-full" :disabled="loading">
+          Beitreten
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- vs KI -->
+  <div class="mt-6 glass p-6">
+    <h2 class="text-lg font-semibold mb-1" style="color:#fffffe;">Gegen die KI spielen</h2>
+    <p class="text-sm mb-5" style="color:#a7a9be;">Einzelspieler-Modus gegen den Computergegner.</p>
+    <div class="flex gap-3">
+      <a href="/ai?difficulty=easy"   class="btn-secondary flex-1 text-center py-2">Leicht</a>
+      <a href="/ai?difficulty=medium" class="btn-primary  flex-1 text-center py-2">Mittel</a>
+      <a href="/ai?difficulty=hard"   class="btn-secondary flex-1 text-center py-2">Schwer</a>
+    </div>
+  </div>
+
+  <!-- Room list -->
+  <div class="mt-10" x-data="roomList()">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold" style="color:#fffffe;">Aktive Räume</h2>
+      <span class="text-xs" style="color:#a7a9be;">aktualisiert alle 5 s</span>
+    </div>
+
+    <div x-show="rooms.length === 0" class="glass py-10 text-center text-sm" style="color:#a7a9be;">
+      Keine offenen Räume
+    </div>
+
+    <div class="space-y-2">
+      <template x-for="r in rooms" :key="r.id">
+        <div class="glass px-5 py-3 flex items-center gap-4">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium truncate" style="color:#fffffe;">
+              <span x-text="r.player1"></span>
+              <template x-if="r.player2">
+                <span> vs <span x-text="r.player2"></span></span>
+              </template>
+            </p>
+            <p class="text-xs mt-0.5" style="color:#a7a9be;"
+               x-text="r.status === 'waiting' ? 'Wartet auf Gegner' : 'Läuft'"></p>
+          </div>
+          <div class="flex items-center gap-3 shrink-0">
+            <span x-show="r.spectatorCount > 0" class="text-xs" style="color:#a7a9be;">
+              👁 <span x-text="r.spectatorCount"></span>
+            </span>
+            <a x-show="r.status === 'waiting'"
+               :href="'/game/' + r.id"
+               class="btn-secondary text-xs px-3 py-1.5">Beitreten</a>
+            <a x-show="r.status === 'playing' && r.allowSpectators"
+               :href="'/spectate/' + r.id"
+               class="btn-secondary text-xs px-3 py-1.5">👁 Zuschauen</a>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function lobby() {
+  return {
+    loading: false,
+    shareLink: '',
+    copied: false,
+    joinID: '',
+    joinError: '',
+    pendingRoomID: '',
+    allowSpectators: false,
+
+    async createRoom() {
+      this.loading = true;
+      try {
+        const res = await fetch('/api/room/create', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({allowSpectators: this.allowSpectators}),
+        });
+        const data = await res.json();
+        if (!res.ok) return;
+        this.pendingRoomID = data.roomID;
+        this.shareLink = window.location.origin + '/game/' + data.roomID;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async copyLink() {
+      await navigator.clipboard.writeText(this.shareLink);
+      this.copied = true;
+      setTimeout(() => this.copied = false, 2000);
+    },
+
+    enterRoom() {
+      window.location.href = '/game/' + this.pendingRoomID;
+    },
+
+    async joinRoom() {
+      this.joinError = '';
+      const id = this.joinID.trim();
+      if (!id) return;
+      this.loading = true;
+      try {
+        const res = await fetch('/api/room/join/' + id, {method: 'POST'});
+        const data = await res.json();
+        if (!res.ok) { this.joinError = data.error || 'Raum nicht gefunden'; return; }
+        window.location.href = '/game/' + data.roomID;
+      } finally {
+        this.loading = false;
+      }
+    },
+  };
+}
+
+function roomList() {
+  return {
+    rooms: [],
+
+    async refresh() {
+      try {
+        const res = await fetch('/api/rooms');
+        if (res.ok) this.rooms = await res.json();
+      } catch (_) {}
+    },
+
+    init() {
+      this.refresh();
+      setInterval(() => this.refresh(), 5000);
+    },
+  };
+}
+</script>
+{{end}}

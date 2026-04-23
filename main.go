@@ -1,0 +1,71 @@
+package main
+
+import (
+	"embed"
+	"io/fs"
+	"log"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"muehle/internal/handler"
+	"muehle/internal/hub"
+	"muehle/internal/repository"
+)
+
+//go:embed templates/* static/*
+var embeddedFiles embed.FS
+
+func main() {
+	repo, err := repository.NewPlayerRepository("muehle.db")
+	if err != nil {
+		log.Fatalf("db init: %v", err)
+	}
+	defer repo.Close()
+
+	h := hub.New(repo)
+
+	pageHandler, err := handler.NewPage(embeddedFiles, repo, h)
+	if err != nil {
+		log.Fatalf("template init: %v", err)
+	}
+
+	lobbyHandler := handler.NewLobby(h, repo)
+	wsHandler := handler.NewWS(h)
+	aiWSHandler := handler.NewAIWS()
+	hsHandler := handler.NewHighscore(repo)
+
+	r := gin.Default()
+
+	// Static files from embedded FS
+	staticSubFS, err := fs.Sub(embeddedFiles, "static")
+	if err != nil {
+		log.Fatalf("static fs: %v", err)
+	}
+	r.StaticFS("/static", http.FS(staticSubFS))
+
+	// Pages
+	r.GET("/", pageHandler.Index)
+	r.GET("/lobby", pageHandler.Lobby)
+	r.GET("/game/:roomID", pageHandler.Game)
+	r.GET("/spectate/:roomID", pageHandler.Spectate)
+	r.GET("/ai", pageHandler.AI)
+	r.GET("/highscores", pageHandler.Highscores)
+	r.GET("/rules", pageHandler.Rules)
+
+	// API
+	r.POST("/api/player/register", lobbyHandler.Register)
+	r.POST("/api/room/create", lobbyHandler.CreateRoom)
+	r.POST("/api/room/join/:roomID", lobbyHandler.JoinRoom)
+	r.GET("/api/rooms", lobbyHandler.ListRooms)
+	r.GET("/api/highscores", hsHandler.List)
+
+	// WebSocket
+	r.GET("/ws/:roomID", wsHandler.Handle)
+	r.GET("/ws/:roomID/spectate", wsHandler.HandleSpectator)
+	r.GET("/ai/ws", aiWSHandler.Handle)
+
+	log.Println("Mühle server listening on :8080")
+	if err := r.Run(":8080"); err != nil {
+		log.Fatal(err)
+	}
+}

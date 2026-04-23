@@ -1,0 +1,104 @@
+{{define "title"}}Mühle – Spielanleitung{{end}}
+{{define "content"}}
+<div class="max-w-2xl mx-auto px-4 py-12">
+
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2" style="color:#fffffe;">Spielanleitung</h1>
+    <p style="color:#a7a9be;">Alles was du über Mühle wissen musst.</p>
+  </div>
+
+  <div class="space-y-6">
+
+    <!-- Ziel -->
+    <div class="glass p-6">
+      <h2 class="text-lg font-semibold mb-3 flex items-center gap-2" style="color:#e8a045;">
+        <span>🎯</span> Ziel des Spiels
+      </h2>
+      <p style="color:#a7a9be;">
+        Reduziere die Steine deines Gegners auf <strong style="color:#fffffe;">2 Steine</strong>,
+        oder blockiere alle seine Züge so, dass er keinen mehr machen kann.
+      </p>
+    </div>
+
+    <!-- Brett -->
+    <div class="glass p-6">
+      <h2 class="text-lg font-semibold mb-3 flex items-center gap-2" style="color:#e8a045;">
+        <span>⬡</span> Das Spielbrett
+      </h2>
+      <p style="color:#a7a9be;">
+        Das Brett besteht aus <strong style="color:#fffffe;">3 konzentrischen Quadraten</strong> mit je 8 Feldern,
+        verbunden durch Linien an den Mitten der Seiten – insgesamt <strong style="color:#fffffe;">24 Felder</strong>.
+        Jeder Spieler startet mit <strong style="color:#fffffe;">9 Steinen</strong>.
+      </p>
+    </div>
+
+    <!-- Phasen -->
+    <div class="glass p-6">
+      <h2 class="text-lg font-semibold mb-4 flex items-center gap-2" style="color:#e8a045;">
+        <span>🔄</span> Spielphasen
+      </h2>
+      <div class="space-y-4">
+        <div class="flex gap-4">
+          <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style="background:#e8a04520; color:#e8a045;">1</div>
+          <div>
+            <p class="font-semibold mb-1" style="color:#fffffe;">Setzen</p>
+            <p class="text-sm" style="color:#a7a9be;">
+              Beide Spieler setzen abwechselnd je einen Stein auf ein beliebiges freies Feld,
+              bis alle 18 Steine (9 × 2) gesetzt wurden.
+            </p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style="background:#e8a04520; color:#e8a045;">2</div>
+          <div>
+            <p class="font-semibold mb-1" style="color:#fffffe;">Ziehen</p>
+            <p class="text-sm" style="color:#a7a9be;">
+              Steine werden auf ein <strong style="color:#fffffe;">direkt benachbartes freies Feld</strong> geschoben.
+              Der Spieler mit genau 3 Steinen darf auf <strong style="color:#fffffe;">jedes freie Feld</strong> springen (Fliegen).
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mühle -->
+    <div class="glass p-6">
+      <h2 class="text-lg font-semibold mb-3 flex items-center gap-2" style="color:#e8a045;">
+        <span>⚡</span> Mühle
+      </h2>
+      <p class="mb-3" style="color:#a7a9be;">
+        Werden <strong style="color:#fffffe;">3 eigene Steine</strong> in einer geraden Linie platziert,
+        entsteht eine <strong style="color:#e8a045;">Mühle</strong>. Der Spieler darf sofort einen beliebigen
+        Stein des Gegners vom Brett entfernen.
+      </p>
+      <ul class="space-y-1 text-sm" style="color:#a7a9be;">
+        <li>• Steine aus einer <strong style="color:#fffffe;">geschlossenen Mühle</strong> des Gegners dürfen nur entfernt werden, wenn keine anderen Steine verfügbar sind.</li>
+        <li>• Eine Mühle kann durch Weg- und Zurückziehen <strong style="color:#fffffe;">erneut gebildet</strong> werden.</li>
+      </ul>
+    </div>
+
+    <!-- Spielende -->
+    <div class="glass p-6">
+      <h2 class="text-lg font-semibold mb-3 flex items-center gap-2" style="color:#e8a045;">
+        <span>🏁</span> Spielende
+      </h2>
+      <ul class="space-y-2 text-sm" style="color:#a7a9be;">
+        <li class="flex items-start gap-2">
+          <span style="color:#f87171;">✗</span>
+          Ein Spieler hat nur noch <strong style="color:#fffffe;">2 Steine</strong> auf dem Brett → <strong style="color:#f87171;">Niederlage</strong>
+        </li>
+        <li class="flex items-start gap-2">
+          <span style="color:#f87171;">✗</span>
+          Ein Spieler kann <strong style="color:#fffffe;">keinen Zug</strong> mehr machen → <strong style="color:#f87171;">Niederlage</strong>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="mt-8 text-center">
+    <a href="/lobby" class="btn-primary inline-block">Jetzt spielen →</a>
+  </div>
+
+</div>
+{{end}}

@@ -1,0 +1,257 @@
+{{define "title"}}Mühle – Spiel{{end}}
+{{define "content"}}
+<div
+  id="muehle-root"
+  class="max-w-7xl mx-auto px-4 py-6"
+  data-room-id="{{.RoomID}}"
+  data-player-name="{{.PlayerName}}"
+  data-token="{{.Token}}"
+  data-spectator="{{.Spectator}}"
+  data-ai-difficulty="{{.AIDifficulty}}"
+  x-data="muehleGame()"
+  x-init="init()"
+>
+
+  <!-- ── Game over modal ───────────────────────────────────────────────── -->
+  <div x-show="phase === 'over'" x-cloak
+       class="fixed inset-0 z-50 flex items-center justify-center px-4"
+       style="background:rgba(0,0,0,0.82);">
+    <div class="glass p-10 text-center max-w-sm w-full ">
+      <div class="text-5xl mb-4" x-text="myWon ? '🏆' : '💀'"></div>
+      <h2 class="text-2xl font-bold mb-1" style="color:#fffffe;" x-text="myWon ? 'Du hast gewonnen!' : 'Niederlage'"></h2>
+      <p class="text-sm mb-6" style="color:#a7a9be;" x-text="myWon ? 'Glückwunsch!' : 'Viel Erfolg beim nächsten Mal'"></p>
+      <div x-show="gameOverStats.length" class="mb-6 space-y-2">
+        <template x-for="s in gameOverStats" :key="s.name">
+          <div class="flex justify-between text-sm px-4 py-2 rounded-lg" style="background:rgba(255,255,255,0.05);">
+            <span style="color:#fffffe;" x-text="s.name"></span>
+            <span class="flex items-center gap-3">
+              <span style="color:#a7a9be;"><span style="color:#e8a045;" x-text="s.wins"></span>W / <span x-text="s.losses"></span>L</span>
+              <span class="font-mono font-semibold" style="color:#e8a045;" x-text="s.elo"></span>
+              <span class="text-xs font-mono" :style="s.eloDelta >= 0 ? 'color:#4ade80' : 'color:#f87171'"
+                    x-text="(s.eloDelta >= 0 ? '+' : '') + s.eloDelta"></span>
+            </span>
+          </div>
+        </template>
+      </div>
+      <!-- Multiplayer buttons -->
+      <div x-show="!spectator && !aiDifficulty" class="flex gap-3">
+        <a href="/lobby" class="btn-secondary flex-1 text-center">Lobby</a>
+        <button @click="requestRematch()"
+                :disabled="rematchRequested"
+                class="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                x-text="rematchRequested ? 'Warte …' : (rematchOffered ? 'Rematch annehmen ✓' : 'Rematch')">
+        </button>
+        <a href="/highscores" class="btn-secondary flex-1 text-center">Scores</a>
+      </div>
+      <!-- AI game buttons -->
+      <div x-show="aiDifficulty" class="flex gap-3">
+        <a href="/lobby" class="btn-secondary flex-1 text-center">Lobby</a>
+        <a :href="'/ai?difficulty=' + aiDifficulty" class="btn-primary flex-1 text-center">Nochmal</a>
+      </div>
+      <!-- Spectator buttons -->
+      <div x-show="spectator" class="flex gap-3">
+        <a href="/lobby" class="btn-secondary flex-1 text-center">Lobby</a>
+        <a href="/highscores" class="btn-primary flex-1 text-center">Highscores</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Opponent left modal ───────────────────────────────────────────── -->
+  <div x-show="phase === 'abandoned'" x-cloak
+       class="fixed inset-0 z-50 flex items-center justify-center px-4"
+       style="background:rgba(0,0,0,0.82);">
+    <div class="glass p-10 text-center max-w-sm w-full ">
+      <div class="text-4xl mb-4">🚪</div>
+      <h2 class="text-xl font-semibold mb-2" style="color:#fffffe;">Gegner hat das Spiel verlassen</h2>
+      <a href="/lobby" class="btn-primary inline-block mt-4">Zurück zur Lobby</a>
+    </div>
+  </div>
+
+  <!-- ── Player info bar ──────────────────────────────────────────────── -->
+  <div class="flex items-center justify-between mb-4 gap-4">
+    <div class="glass px-4 py-3 flex items-center gap-3 flex-1 transition-all"
+         :class="gs && gs.Turn === 1 && !gs.MustRemove ? 'ring-1 ring-amber-400/60' : ''">
+      <div class="w-5 h-5 rounded-full flex-shrink-0"
+           style="background:radial-gradient(circle at 35% 35%,#f0f0f0,#b0b0b0);box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>
+      <div class="min-w-0">
+        <p class="text-sm font-semibold truncate" style="color:#fffffe;" x-text="playerNames[0] || 'Spieler 1'"></p>
+        <p class="text-xs" style="color:#a7a9be;">
+          <span x-text="gs ? gs.ToPlace[0] : 9"></span> Hand ·
+          <span x-text="gs ? gs.OnBoard1 : 0"></span> Brett
+        </p>
+      </div>
+      <span x-show="gs && gs.Turn === 1 && !gs.MustRemove" x-cloak
+            class="ml-auto text-xs px-2 py-0.5 rounded shrink-0"
+            style="background:#e8a04520;color:#e8a045;">Am Zug</span>
+    </div>
+    <div class="text-center hidden md:block shrink-0">
+      <p class="text-xs font-medium uppercase tracking-widest" style="color:#a7a9be;" x-text="phaseLabel"></p>
+      <p x-show="startedAt > 0" class="text-sm font-mono font-medium mt-0.5" style="color:#fffffe;" x-text="timeLabel"></p>
+      <div class="flex items-center justify-center gap-2 mt-1">
+        <span x-show="spectator" x-cloak class="text-xs px-2 py-0.5 rounded" style="background:#e8a04520;color:#e8a045;">👁 Zuschauer</span>
+        <button x-show="!spectator" @click="toggleMute()" class="text-base leading-none opacity-60 hover:opacity-100 transition-opacity"
+                :title="muted ? 'Ton einschalten' : 'Ton ausschalten'"
+                x-text="muted ? '🔇' : '🔊'">
+        </button>
+      </div>
+    </div>
+    <div class="glass px-4 py-3 flex items-center gap-3 flex-1 transition-all"
+         :class="gs && gs.Turn === 2 && !gs.MustRemove ? 'ring-1 ring-amber-400/60' : ''">
+      <div class="w-5 h-5 rounded-full flex-shrink-0"
+           style="background:radial-gradient(circle at 35% 35%,#4a4a4a,#1a1a1a);box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>
+      <div class="min-w-0">
+        <p class="text-sm font-semibold truncate" style="color:#fffffe;" x-text="playerNames[1] || 'Spieler 2'"></p>
+        <p class="text-xs" style="color:#a7a9be;">
+          <span x-text="gs ? gs.ToPlace[1] : 9"></span> Hand ·
+          <span x-text="gs ? gs.OnBoard2 : 0"></span> Brett
+        </p>
+      </div>
+      <span x-show="gs && gs.Turn === 2 && !gs.MustRemove" x-cloak
+            class="ml-auto text-xs px-2 py-0.5 rounded shrink-0"
+            style="background:#e8a04520;color:#e8a045;">Am Zug</span>
+    </div>
+  </div>
+
+  <!-- ── Status message ───────────────────────────────────────────────── -->
+  <div class="text-center mb-3 h-7">
+    <p class="text-sm font-medium" style="color:#e8a045;" x-text="statusMsg"></p>
+  </div>
+
+  <!-- ── Opponent temporarily disconnected notice ──────────────────────── -->
+  <div x-show="opponentGone" x-cloak class="text-center mb-2">
+    <p class="text-xs" style="color:#a7a9be;">
+      ⚠ Verbindung zum Gegner unterbrochen – warte auf Rückkehr …
+    </p>
+  </div>
+
+  <!-- ── Board ────────────────────────────────────────────────────────── -->
+  <div class="flex justify-center relative">
+    <div class="glass p-4 md:p-6 w-full max-w-[1000px] relative">
+
+      <!-- Waiting overlay (over the board) -->
+      <div x-show="phase === 'waiting' || phase === 'connecting'" x-cloak
+           class="absolute inset-0 z-10 rounded-2xl flex flex-col items-center justify-center gap-3"
+           style="background:rgba(15,14,23,0.78);backdrop-filter:blur(3px);">
+        <div class="flex gap-2">
+          <span class="w-2.5 h-2.5 rounded-full" style="background:#e8a045;"></span>
+          <span class="w-2.5 h-2.5 rounded-full" style="background:#e8a045;"></span>
+          <span class="w-2.5 h-2.5 rounded-full" style="background:#e8a045;"></span>
+        </div>
+        <p class="text-sm font-medium" style="color:#fffffe;"
+           x-text="spectator ? 'Spiel startet gleich …' : (aiDifficulty ? 'KI wird geladen …' : 'Warte auf Gegner …')"></p>
+        <div x-show="!spectator && !aiDifficulty" class="flex gap-2 mt-1">
+          <input :value="shareLink" class="input-field text-xs w-44" readonly @click="$el.select()">
+          <button @click="copyLink" class="btn-secondary px-2 text-xs">
+            <span x-text="copied ? '✓' : 'Kopieren'"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- SVG board -->
+      <svg viewBox="0 0 600 600"
+           class="w-full select-none">
+        <defs>
+          <radialGradient id="boardBg" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#2a2535"/>
+            <stop offset="100%" stop-color="#15131f"/>
+          </radialGradient>
+          <radialGradient id="stoneWhite" cx="35%" cy="30%" r="65%">
+            <stop offset="0%"   stop-color="#f8f8f8"/>
+            <stop offset="60%"  stop-color="#d0d0d0"/>
+            <stop offset="100%" stop-color="#a0a0a0"/>
+          </radialGradient>
+          <radialGradient id="stoneBlack" cx="35%" cy="30%" r="65%">
+            <stop offset="0%"   stop-color="#555555"/>
+            <stop offset="60%"  stop-color="#2a2a2a"/>
+            <stop offset="100%" stop-color="#0d0d0d"/>
+          </radialGradient>
+          <filter id="lineGlow">
+            <feGaussianBlur stdDeviation="1.5" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="stoneGlow">
+            <feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <rect width="600" height="600" rx="16" fill="url(#boardBg)"/>
+
+        <!-- Static lines -->
+        <g stroke="#e8a045" stroke-width="2" opacity="0.65" filter="url(#lineGlow)">
+          <line x1="50"  y1="50"  x2="300" y2="50"/><line x1="300" y1="50"  x2="550" y2="50"/>
+          <line x1="550" y1="50"  x2="550" y2="300"/><line x1="550" y1="300" x2="550" y2="550"/>
+          <line x1="550" y1="550" x2="300" y2="550"/><line x1="300" y1="550" x2="50"  y2="550"/>
+          <line x1="50"  y1="550" x2="50"  y2="300"/><line x1="50"  y1="300" x2="50"  y2="50"/>
+          <line x1="150" y1="150" x2="300" y2="150"/><line x1="300" y1="150" x2="450" y2="150"/>
+          <line x1="450" y1="150" x2="450" y2="300"/><line x1="450" y1="300" x2="450" y2="450"/>
+          <line x1="450" y1="450" x2="300" y2="450"/><line x1="300" y1="450" x2="150" y2="450"/>
+          <line x1="150" y1="450" x2="150" y2="300"/><line x1="150" y1="300" x2="150" y2="150"/>
+          <line x1="250" y1="250" x2="300" y2="250"/><line x1="300" y1="250" x2="350" y2="250"/>
+          <line x1="350" y1="250" x2="350" y2="300"/><line x1="350" y1="300" x2="350" y2="350"/>
+          <line x1="350" y1="350" x2="300" y2="350"/><line x1="300" y1="350" x2="250" y2="350"/>
+          <line x1="250" y1="350" x2="250" y2="300"/><line x1="250" y1="300" x2="250" y2="250"/>
+          <line x1="300" y1="50"  x2="300" y2="150"/><line x1="300" y1="150" x2="300" y2="250"/>
+          <line x1="550" y1="300" x2="450" y2="300"/><line x1="450" y1="300" x2="350" y2="300"/>
+          <line x1="300" y1="550" x2="300" y2="450"/><line x1="300" y1="450" x2="300" y2="350"/>
+          <line x1="50"  y1="300" x2="150" y2="300"/><line x1="150" y1="300" x2="250" y2="300"/>
+        </g>
+
+        <!-- Static intersection dots -->
+        <g fill="#e8a045" opacity="0.45">
+          <circle cx="50"  cy="50"  r="4"/><circle cx="300" cy="50"  r="4"/><circle cx="550" cy="50"  r="4"/>
+          <circle cx="550" cy="300" r="4"/><circle cx="550" cy="550" r="4"/><circle cx="300" cy="550" r="4"/>
+          <circle cx="50"  cy="550" r="4"/><circle cx="50"  cy="300" r="4"/>
+          <circle cx="150" cy="150" r="4"/><circle cx="300" cy="150" r="4"/><circle cx="450" cy="150" r="4"/>
+          <circle cx="450" cy="300" r="4"/><circle cx="450" cy="450" r="4"/><circle cx="300" cy="450" r="4"/>
+          <circle cx="150" cy="450" r="4"/><circle cx="150" cy="300" r="4"/>
+          <circle cx="250" cy="250" r="4"/><circle cx="300" cy="250" r="4"/><circle cx="350" cy="250" r="4"/>
+          <circle cx="350" cy="300" r="4"/><circle cx="350" cy="350" r="4"/><circle cx="300" cy="350" r="4"/>
+          <circle cx="250" cy="350" r="4"/><circle cx="250" cy="300" r="4"/>
+        </g>
+
+        {{/* Per-position elements generated server-side: no x-for in SVG */}}
+        {{range .Positions}}
+
+        <!-- valid-target highlight for position {{.I}} -->
+        <circle
+          x-show="isValidTarget({{.I}})"
+          cx="{{.X}}" cy="{{.Y}}" r="20"
+          fill="rgba(232,160,69,0.15)"
+          stroke="#e8a045" stroke-width="1.5" stroke-dasharray="4 3"
+          class="pointer-events-none"/>
+
+        <!-- stone at position {{.I}} -->
+        <g x-show="gs && gs.Board[{{.I}}] !== 0"
+           @click="handlePositionClick({{.I}})"
+           class="cursor-pointer">
+          <circle cx="{{.SX}}" cy="{{.SY}}" r="18" fill="rgba(0,0,0,0.45)"/>
+          <circle
+            cx="{{.X}}" cy="{{.Y}}" r="18"
+            :fill="gs && gs.Board[{{.I}}] === 1 ? 'url(#stoneWhite)' : 'url(#stoneBlack)'"
+            :stroke="isSelected({{.I}}) ? '#e8a045' : 'rgba(255,255,255,0.12)'"
+            :stroke-width="isSelected({{.I}}) ? '2.5' : '1'"
+            filter="url(#stoneGlow)"/>
+          <circle
+            cx="{{.RX}}" cy="{{.RY}}" r="5"
+            :fill="gs && gs.Board[{{.I}}] === 1 ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.12)'"/>
+        </g>
+
+        <!-- click target for empty position {{.I}} -->
+        <circle
+          x-show="isValidTarget({{.I}}) && (!gs || gs.Board[{{.I}}] === 0)"
+          cx="{{.X}}" cy="{{.Y}}" r="22"
+          fill="transparent"
+          class="cursor-pointer"
+          @click="handlePositionClick({{.I}})"/>
+
+        {{end}}
+
+      </svg>
+    </div>
+  </div>
+
+</div>
+
+<script src="/static/js/game.js"></script>
+{{end}}

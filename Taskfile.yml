@@ -1,0 +1,66 @@
+version: '3'
+
+vars:
+  TW_OS:
+    sh: |
+      case "$(uname -s)" in
+        Darwin) echo "macos" ;;
+        Linux)  echo "linux" ;;
+        *)      echo "linux" ;;
+      esac
+  TW_ARCH:
+    sh: |
+      case "$(uname -m)" in
+        x86_64)          echo "x64"   ;;
+        arm64|aarch64)   echo "arm64" ;;
+        *)               echo "x64"   ;;
+      esac
+
+tasks:
+  tw:install:
+    desc: TailwindCSS Standalone-Binary herunterladen
+    cmds:
+      - mkdir -p bin
+      - curl -sLo bin/tailwindcss https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-{{.TW_OS}}-{{.TW_ARCH}}
+      - chmod +x bin/tailwindcss
+    status:
+      - test -f bin/tailwindcss
+
+  tw:build:
+    desc: CSS einmalig generieren (minifiziert)
+    deps: [tw:install]
+    cmds:
+      - ./bin/tailwindcss -i static/css/input.css -o static/css/app.css --minify
+
+  tw:watch:
+    desc: CSS im Watch-Modus generieren (Entwicklung)
+    deps: [tw:install]
+    cmds:
+      - ./bin/tailwindcss -i static/css/input.css -o static/css/app.css --watch
+
+  build:
+    desc: Go-Binary bauen
+    deps: [tw:build]
+    cmds:
+      - go build -o bin/muehle ./...
+
+  run:
+    desc: Anwendung lokal starten
+    deps: [tw:build]
+    cmds:
+      - go run ./...
+
+  test:
+    desc: Tests ausführen
+    cmds:
+      - go test ./...
+
+  tidy:
+    desc: go mod tidy ausführen
+    cmds:
+      - go mod tidy
+
+  lint:
+    desc: Linter ausführen (benötigt golangci-lint)
+    cmds:
+      - golangci-lint run

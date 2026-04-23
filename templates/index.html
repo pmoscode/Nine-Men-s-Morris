@@ -1,0 +1,74 @@
+{{define "title"}}Mühle – Willkommen{{end}}
+{{define "content"}}
+<div class="min-h-[calc(100vh-7rem)] flex items-center justify-center px-4">
+  <div class="w-full max-w-md">
+
+    <!-- Logo / Hero -->
+    <div class="text-center mb-10">
+      <div class="text-7xl mb-4" style="filter:drop-shadow(0 0 24px rgba(232,160,69,0.4));">⬡</div>
+      <h1 class="text-4xl font-bold mb-2" style="color:#fffffe;">Mühle</h1>
+      <p class="text-sm" style="color:#a7a9be;">Das klassische Strategiespiel – jetzt online</p>
+    </div>
+
+    <!-- Name form -->
+    <div class="glass p-8" x-data="registerForm()">
+      <h2 class="text-lg font-semibold mb-1" style="color:#fffffe;">Wie heißt du?</h2>
+      <p class="text-sm mb-6" style="color:#a7a9be;">Dein Name wird für die Highscore-Liste verwendet.</p>
+
+      <form @submit.prevent="submit">
+        <div class="mb-4">
+          <input
+            x-model="name"
+            type="text"
+            class="input-field"
+            placeholder="Dein Spielername …"
+            maxlength="30"
+            autofocus
+            required
+          >
+          <p x-show="error" x-text="error" class="mt-2 text-sm" style="color:#f87171;" x-cloak></p>
+        </div>
+        <button type="submit" class="btn-primary w-full" :disabled="loading">
+          <span x-show="!loading">Losspielen →</span>
+          <span x-show="loading" x-cloak>Einen Moment …</span>
+        </button>
+      </form>
+
+      <p class="mt-6 text-xs text-center" style="color:#6b7280;">
+        Kein Passwort nötig. Dein Name wird als Cookie gespeichert.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function registerForm() {
+  const params = new URLSearchParams(window.location.search);
+  const next = params.get('next') || '/lobby';
+  return {
+    name: '',
+    error: '',
+    loading: false,
+    async submit() {
+      this.error = '';
+      this.loading = true;
+      try {
+        const res = await fetch('/api/player/register', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({name: this.name.trim()}),
+        });
+        const data = await res.json();
+        if (!res.ok) { this.error = data.error || 'Fehler'; return; }
+        window.location.href = next;
+      } catch {
+        this.error = 'Verbindungsfehler';
+      } finally {
+        this.loading = false;
+      }
+    },
+  };
+}
+</script>
+{{end}}

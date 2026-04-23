@@ -1,0 +1,48 @@
+{{define "title"}}Mühle – Highscores{{end}}
+{{define "content"}}
+<div class="max-w-2xl mx-auto px-4 py-12">
+
+  <div class="mb-8 text-center">
+    <h1 class="text-3xl font-bold mb-2" style="color:#fffffe;">Highscores</h1>
+    <p style="color:#a7a9be;">Sortiert nach ELO</p>
+  </div>
+
+  <div class="glass overflow-hidden">
+    {{if .Players}}
+    <table class="w-full text-sm">
+      <thead>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+          <th class="px-5 py-3 text-left font-semibold" style="color:#a7a9be;">#</th>
+          <th class="px-5 py-3 text-left font-semibold" style="color:#a7a9be;">Name</th>
+          <th class="px-5 py-3 text-right font-semibold" style="color:#e8a045;">ELO</th>
+          <th class="px-5 py-3 text-right font-semibold" style="color:#a7a9be;">Siege</th>
+          <th class="px-5 py-3 text-right font-semibold" style="color:#a7a9be;">Niederlagen</th>
+          <th class="px-5 py-3 text-right font-semibold" style="color:#a7a9be;">Win-Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range $i, $p := .Players}}
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.04);" class="hover:bg-white/[0.03] transition-colors">
+          <td class="px-5 py-3 font-mono text-xs" style="color:{{if eq $i 0}}#e8a045{{else if eq $i 1}}#a7a9be{{else if eq $i 2}}#b08050{{else}}#3d3d5c{{end}};">
+            {{if eq $i 0}}🥇{{else if eq $i 1}}🥈{{else if eq $i 2}}🥉{{else}}{{add $i 1}}{{end}}
+          </td>
+          <td class="px-5 py-3 font-medium" style="color:#fffffe;">{{$p.Name}}</td>
+          <td class="px-5 py-3 text-right font-bold" style="color:#e8a045;">{{$p.Elo}}</td>
+          <td class="px-5 py-3 text-right font-semibold" style="color:#fffffe;">{{$p.Wins}}</td>
+          <td class="px-5 py-3 text-right" style="color:#a7a9be;">{{$p.Losses}}</td>
+          <td class="px-5 py-3 text-right font-medium" style="color:#a7a9be;">{{$p.WinRate}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    {{else}}
+    <div class="py-16 text-center" style="color:#a7a9be;">
+      <p class="text-lg mb-2">Noch keine Einträge</p>
+      <p class="text-sm">Spiel ein paar Runden, um hier zu erscheinen!</p>
+      <a href="/lobby" class="btn-primary inline-block mt-6">Jetzt spielen</a>
+    </div>
+    {{end}}
+  </div>
+
+</div>
+{{end}}

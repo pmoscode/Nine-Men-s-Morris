@@ -1,0 +1,94 @@
+{{define "layout"}}
+<!DOCTYPE html>
+<html lang="de" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{block "title" .}}Mühle{{end}}</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    [x-cloak] { display: none !important; }
+
+    .glass {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #e8a045, #d4863a);
+      color: #0f0e17;
+      font-weight: 600;
+      padding: 0.625rem 1.5rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(232,160,69,0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(232,160,69,0.45);
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fffffe;
+      font-weight: 500;
+      padding: 0.625rem 1.5rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.14);
+    }
+    .input-field {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fffffe;
+      border-radius: 0.5rem;
+      padding: 0.625rem 1rem;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: #e8a045;
+      box-shadow: 0 0 0 3px rgba(232,160,69,0.15);
+    }
+    .input-field::placeholder { color: #6b7280; }
+
+  </style>
+</head>
+<body class="min-h-full flex flex-col" style="background:#0f0e17; color:#fffffe;">
+
+  <!-- Navigation -->
+  <nav class="border-b" style="border-color:rgba(255,255,255,0.06); background:rgba(15,14,23,0.85); backdrop-filter:blur(8px);">
+    <div class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="/lobby" class="flex items-center gap-2 text-lg font-bold tracking-wide" style="color:#e8a045;">
+        <span>⬡</span> Mühle
+      </a>
+      <div class="flex items-center gap-6 text-sm font-medium" style="color:#a7a9be;">
+        <a href="/lobby"      class="hover:text-white transition-colors">Lobby</a>
+        <a href="/highscores" class="hover:text-white transition-colors">Highscores</a>
+        <a href="/rules"      class="hover:text-white transition-colors">Regeln</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="flex-1">
+    {{block "content" .}}{{end}}
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center py-4 text-xs" style="color:#3d3d5c;">
+    Mühle — Nine Men's Morris
+  </footer>
+
+</body>
+</html>
+{{end}}
