@@ -2,11 +2,13 @@ services:
   muehle:
     build: .
     ports:
-      - "8080:8080"
+      - "${PORT:-8080}:${PORT:-8080}"
     volumes:
       - muehle-data:/app/data
     environment:
       - DB_PATH=/app/data/muehle.db
+      - PORT=${PORT:-8080}
+      - TRUSTED_PROXIES=${TRUSTED_PROXIES:-}
     restart: unless-stopped
 
 volumes:
