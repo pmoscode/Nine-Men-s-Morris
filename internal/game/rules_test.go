@@ -3,7 +3,7 @@ package game_test
 import (
 	"testing"
 
-	"muehle/internal/game"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/game"
 )
 
 // ── helpers ───────────────────────────────────────────────────────────────────

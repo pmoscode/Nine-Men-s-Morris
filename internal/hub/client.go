@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"muehle/internal/model"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/model"
 )
 
 const (
@@ -87,7 +87,7 @@ func (c *Client) ReadPump() {
 
 		var msg model.ClientMessage
 		if err := json.Unmarshal(raw, &msg); err != nil {
-			c.Send(model.ServerMessage{Type: model.MsgError, Payload: map[string]string{"message": "Ungültige Nachricht"}})
+			c.Send(model.ServerMessage{Type: model.MsgError, Payload: map[string]string{"message": "Invalid message"}})
 			continue
 		}
 

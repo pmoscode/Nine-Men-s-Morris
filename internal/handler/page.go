@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"muehle/internal/game"
-	"muehle/internal/hub"
-	"muehle/internal/repository"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/game"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/hub"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/repository"
 )
 
 // BoardPos is passed to the game template for SVG rendering.
