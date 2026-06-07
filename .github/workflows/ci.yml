@@ -38,4 +38,4 @@ jobs:
         run: ./bin/tailwindcss -i static/css/input.css -o static/css/app.css --minify
 
       - name: Build binary
-        run: go build -o bin/muehle ./...
+        run: go build -o bin/muehle .
