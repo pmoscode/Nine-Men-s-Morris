@@ -5,7 +5,7 @@ RUN apk add --no-cache curl libstdc++ libgcc
 
 COPY . .
 
-# TailwindCSS herunterladen, CSS bauen (Architektur automatisch erkennen)
+# Download TailwindCSS and build CSS (auto-detect architecture)
 RUN ARCH=$(uname -m) && \
     case "$ARCH" in \
       x86_64)        TW_ARCH="x64" ;; \
