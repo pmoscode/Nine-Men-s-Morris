@@ -1,14 +1,14 @@
 # Mühle
 
-Das bekannte Mühle Spiel (Regeln müsstest du kennen oder dir im Internet organisieren)
+The classic Nine Men's Morris game (you should know the rules or can look them up online).
 
-Es soll eine Web-App sein, die ein Highscore Backend (golang) implementiert.
+It is a web app that implements a highscore backend (Go).
 
-Als Frontend soll tailwindcss4, AlpineJS und native Javascript verwendet werden.
+The frontend uses TailwindCSS 4, AlpineJS, and native JavaScript.
 
-Backend soll in Go implementiert werden. Gin als Webframework. sqlite als Datenbank.
-Ausserdem soll ein Dockerfile geschrieben werden.
+The backend is implemented in Go with Gin as the web framework and SQLite as the database.
+A Dockerfile is also included.
 
-Alles soll als embedded Applikation gepackt werden.
+Everything is packaged as an embedded application.
 
-Für das Frontend templating soll go/html/template verwendet werden.
+Go's `html/template` is used for frontend templating.

@@ -1,4 +1,4 @@
-{{define "title"}}Mühle – Spiel{{end}}
+{{define "title"}}Mühle – Game{{end}}
 {{define "content"}}
 <div
   id="muehle-root"
@@ -18,8 +18,8 @@
        style="background:rgba(0,0,0,0.82);">
     <div class="glass p-10 text-center max-w-sm w-full ">
       <div class="text-5xl mb-4" x-text="myWon ? '🏆' : '💀'"></div>
-      <h2 class="text-2xl font-bold mb-1" style="color:#fffffe;" x-text="myWon ? 'Du hast gewonnen!' : 'Niederlage'"></h2>
-      <p class="text-sm mb-6" style="color:#a7a9be;" x-text="myWon ? 'Glückwunsch!' : 'Viel Erfolg beim nächsten Mal'"></p>
+      <h2 class="text-2xl font-bold mb-1" style="color:#fffffe;" x-text="myWon ? 'You won!' : 'Defeat'"></h2>
+      <p class="text-sm mb-6" style="color:#a7a9be;" x-text="myWon ? 'Congratulations!' : 'Better luck next time'"></p>
       <div x-show="gameOverStats.length" class="mb-6 space-y-2">
         <template x-for="s in gameOverStats" :key="s.name">
           <div class="flex justify-between text-sm px-4 py-2 rounded-lg" style="background:rgba(255,255,255,0.05);">
@@ -39,14 +39,14 @@
         <button @click="requestRematch()"
                 :disabled="rematchRequested"
                 class="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                x-text="rematchRequested ? 'Warte …' : (rematchOffered ? 'Rematch annehmen ✓' : 'Rematch')">
+                x-text="rematchRequested ? 'Waiting …' : (rematchOffered ? 'Accept rematch ✓' : 'Rematch')">
         </button>
         <a href="/highscores" class="btn-secondary flex-1 text-center">Scores</a>
       </div>
       <!-- AI game buttons -->
       <div x-show="aiDifficulty" class="flex gap-3">
         <a href="/lobby" class="btn-secondary flex-1 text-center">Lobby</a>
-        <a :href="'/ai?difficulty=' + aiDifficulty" class="btn-primary flex-1 text-center">Nochmal</a>
+        <a :href="'/ai?difficulty=' + aiDifficulty" class="btn-primary flex-1 text-center">Play again</a>
       </div>
       <!-- Spectator buttons -->
       <div x-show="spectator" class="flex gap-3">
@@ -62,8 +62,8 @@
        style="background:rgba(0,0,0,0.82);">
     <div class="glass p-10 text-center max-w-sm w-full ">
       <div class="text-4xl mb-4">🚪</div>
-      <h2 class="text-xl font-semibold mb-2" style="color:#fffffe;">Gegner hat das Spiel verlassen</h2>
-      <a href="/lobby" class="btn-primary inline-block mt-4">Zurück zur Lobby</a>
+      <h2 class="text-xl font-semibold mb-2" style="color:#fffffe;">Opponent has left the game</h2>
+      <a href="/lobby" class="btn-primary inline-block mt-4">Back to lobby</a>
     </div>
   </div>
 
@@ -74,23 +74,23 @@
       <div class="w-5 h-5 rounded-full flex-shrink-0"
            style="background:radial-gradient(circle at 35% 35%,#f0f0f0,#b0b0b0);box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>
       <div class="min-w-0">
-        <p class="text-sm font-semibold truncate" style="color:#fffffe;" x-text="playerNames[0] || 'Spieler 1'"></p>
+        <p class="text-sm font-semibold truncate" style="color:#fffffe;" x-text="playerNames[0] || 'Player 1'"></p>
         <p class="text-xs" style="color:#a7a9be;">
           <span x-text="gs ? gs.ToPlace[0] : 9"></span> Hand ·
-          <span x-text="gs ? gs.OnBoard1 : 0"></span> Brett
+          <span x-text="gs ? gs.OnBoard1 : 0"></span> Board
         </p>
       </div>
       <span x-show="gs && gs.Turn === 1 && !gs.MustRemove" x-cloak
             class="ml-auto text-xs px-2 py-0.5 rounded shrink-0"
-            style="background:#e8a04520;color:#e8a045;">Am Zug</span>
+            style="background:#e8a04520;color:#e8a045;">To move</span>
     </div>
     <div class="text-center hidden md:block shrink-0">
       <p class="text-xs font-medium uppercase tracking-widest" style="color:#a7a9be;" x-text="phaseLabel"></p>
       <p x-show="startedAt > 0" class="text-sm font-mono font-medium mt-0.5" style="color:#fffffe;" x-text="timeLabel"></p>
       <div class="flex items-center justify-center gap-2 mt-1">
-        <span x-show="spectator" x-cloak class="text-xs px-2 py-0.5 rounded" style="background:#e8a04520;color:#e8a045;">👁 Zuschauer</span>
+        <span x-show="spectator" x-cloak class="text-xs px-2 py-0.5 rounded" style="background:#e8a04520;color:#e8a045;">👁 Spectator</span>
         <button x-show="!spectator" @click="toggleMute()" class="text-base leading-none opacity-60 hover:opacity-100 transition-opacity"
-                :title="muted ? 'Ton einschalten' : 'Ton ausschalten'"
+                :title="muted ? 'Enable sound' : 'Disable sound'"
                 x-text="muted ? '🔇' : '🔊'">
         </button>
       </div>
@@ -100,15 +100,15 @@
       <div class="w-5 h-5 rounded-full flex-shrink-0"
            style="background:radial-gradient(circle at 35% 35%,#4a4a4a,#1a1a1a);box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>
       <div class="min-w-0">
-        <p class="text-sm font-semibold truncate" style="color:#fffffe;" x-text="playerNames[1] || 'Spieler 2'"></p>
+        <p class="text-sm font-semibold truncate" style="color:#fffffe;" x-text="playerNames[1] || 'Player 2'"></p>
         <p class="text-xs" style="color:#a7a9be;">
           <span x-text="gs ? gs.ToPlace[1] : 9"></span> Hand ·
-          <span x-text="gs ? gs.OnBoard2 : 0"></span> Brett
+          <span x-text="gs ? gs.OnBoard2 : 0"></span> Board
         </p>
       </div>
       <span x-show="gs && gs.Turn === 2 && !gs.MustRemove" x-cloak
             class="ml-auto text-xs px-2 py-0.5 rounded shrink-0"
-            style="background:#e8a04520;color:#e8a045;">Am Zug</span>
+            style="background:#e8a04520;color:#e8a045;">To move</span>
     </div>
   </div>
 
@@ -120,7 +120,7 @@
   <!-- ── Opponent temporarily disconnected notice ──────────────────────── -->
   <div x-show="opponentGone" x-cloak class="text-center mb-2">
     <p class="text-xs" style="color:#a7a9be;">
-      ⚠ Verbindung zum Gegner unterbrochen – warte auf Rückkehr …
+      ⚠ Connection to opponent interrupted – waiting for reconnect …
     </p>
   </div>
 
@@ -138,11 +138,11 @@
           <span class="w-2.5 h-2.5 rounded-full" style="background:#e8a045;"></span>
         </div>
         <p class="text-sm font-medium" style="color:#fffffe;"
-           x-text="spectator ? 'Spiel startet gleich …' : (aiDifficulty ? 'KI wird geladen …' : 'Warte auf Gegner …')"></p>
+           x-text="spectator ? 'Game starting …' : (aiDifficulty ? 'Loading AI …' : 'Waiting for opponent …')"></p>
         <div x-show="!spectator && !aiDifficulty" class="flex gap-2 mt-1">
           <input :value="shareLink" class="input-field text-xs w-44" readonly @click="$el.select()">
           <button @click="copyLink" class="btn-secondary px-2 text-xs">
-            <span x-text="copied ? '✓' : 'Kopieren'"></span>
+            <span x-text="copied ? '✓' : 'Copy'"></span>
           </button>
         </div>
       </div>

@@ -1,8 +1,8 @@
 package ai
 
 import (
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/game"
 	"math/rand"
-	"muehle/internal/game"
 )
 
 const (

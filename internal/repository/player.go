@@ -2,8 +2,8 @@ package repository
 
 import (
 	"database/sql"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/model"
 	"math"
-	"muehle/internal/model"
 	"strings"
 
 	_ "modernc.org/sqlite"

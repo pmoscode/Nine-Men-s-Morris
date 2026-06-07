@@ -3,7 +3,7 @@ package model_test
 import (
 	"testing"
 
-	"muehle/internal/model"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/model"
 )
 
 func TestWinRate_ZeroGames(t *testing.T) {

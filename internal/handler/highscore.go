@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"muehle/internal/repository"
+	"github.com/pmoscode/Nine-Men-s-Morris/internal/repository"
 )
 
 type HighscoreHandler struct {

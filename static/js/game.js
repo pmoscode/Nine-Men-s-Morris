@@ -138,7 +138,7 @@ function muehleGame() {
       };
 
       this.ws.onerror = () => {
-        this.statusMsg = 'Verbindungsfehler';
+        this.statusMsg = 'Connection error';
       };
 
       this.ws.onclose = () => {
@@ -194,7 +194,7 @@ function muehleGame() {
           break;
 
         case 'error':
-          this.statusMsg = msg.payload?.message || 'Ungültiger Zug';
+          this.statusMsg = msg.payload?.message || 'Invalid move';
           setTimeout(() => this.updateStatus(), 2000);
           break;
 
@@ -253,21 +253,21 @@ function muehleGame() {
 
       if (gs.MustRemove) {
         this.statusMsg = myTurn
-          ? 'Mühle! Wähle einen gegnerischen Stein zum Entfernen.'
-          : `${this.playerNames[gs.Turn - 1]} schließt eine Mühle …`;
+          ? 'Mill! Choose an opponent stone to remove.'
+          : `${this.playerNames[gs.Turn - 1]} is closing a mill …`;
         return;
       }
       if (!myTurn) {
-        this.statusMsg = `${this.playerNames[gs.Turn - 1]} ist am Zug …`;
+        this.statusMsg = `${this.playerNames[gs.Turn - 1]} is to move …`;
         return;
       }
       if (gs.Phase === 0) { // PhasePlace
-        this.statusMsg = `Dein Zug – setze einen Stein (${gs.ToPlace[this.myPlayer - 1]} übrig)`;
+        this.statusMsg = `Your turn – place a stone (${gs.ToPlace[this.myPlayer - 1]} left)`;
       } else {
         const flying = gs.Board.filter(v => v === this.myPlayer).length === 3;
         this.statusMsg = flying
-          ? 'Dein Zug – wähle einen Stein zum Fliegen'
-          : 'Dein Zug – wähle einen Stein zum Ziehen';
+          ? 'Your turn – choose a stone to fly'
+          : 'Your turn – choose a stone to move';
       }
     },
 
@@ -436,7 +436,7 @@ function muehleGame() {
 
     get phaseLabel() {
       if (!this.gs) return '';
-      const labels = ['Setzphase', 'Zugphase', 'Spielende'];
+      const labels = ['Placing', 'Moving', 'Game over'];
       return labels[this.gs.Phase] || '';
     },
   };
