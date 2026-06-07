@@ -32,8 +32,8 @@ func port() string {
 	return ":8080"
 }
 
-// trustedProxies liest TRUSTED_PROXIES als kommaseparierte Liste.
-// Leer oder nicht gesetzt → nil (kein Proxy vertrauen).
+// trustedProxies reads TRUSTED_PROXIES as a comma-separated list.
+// Empty or unset returns nil (trust no proxies).
 func trustedProxies() []string {
 	v := os.Getenv("TRUSTED_PROXIES")
 	if v == "" {
